@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xarajatlarim</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#2f6fed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  /* 1-QISM: ranglar bir joyda (o'zgaruvchilar) */
+  :root {
+    --bg: #f5f6fa; --card: #ffffff; --text: #1f2430; --muted: #6b7280;
+    --accent: #2f6fed; --danger: #e5484d; --line: #e5e7eb;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161c; --card: #1d2029; --text: #eceef3; --muted: #9aa1b0; --line: #2c303b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161c; --card: #1d2029; --text: #eceef3; --muted: #9aa1b0; --line: #2c303b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 22px; margin: 8px 0 16px; }
+  .card { background: var(--card); border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--line); }
+
+  /* 2-QISM: forma */
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .full { grid-column: 1 / -1; }
+  label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
+  input {
+    width: 100%; padding: 10px; font-size: 16px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  }
+  button.add {
+    grid-column: 1 / -1; padding: 12px; font-size: 16px; border: 0; border-radius: 8px;
+    background: var(--accent); color: #fff; cursor: pointer;
+  }
+
+  /* 3-QISM: jami */
+  .totals { display: flex; gap: 12px; }
+  .totals div { flex: 1; }
+  .totals small { color: var(--muted); display: block; }
+  .totals b { font-size: 20px; }
+
+  /* 4-QISM: ro'yxat */
+  .day-title { display: flex; justify-content: space-between; font-weight: 600; margin: 4px 0 8px; }
+  .item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .item .name { font-weight: 500; }
+  .item .meta { font-size: 13px; color: var(--muted); word-break: break-word; }
+  .item .sum { white-space: nowrap; font-weight: 600; }
+  .del { background: none; border: 0; color: var(--danger); font-size: 18px; cursor: pointer; }
+  .tools { display: flex; gap: 8px; }
+  .tools button { flex: 1; padding: 10px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; }
+  .empty { color: var(--muted); text-align: center; padding: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>💸 Xarajatlarim</h1>
+
+  <!-- Forma -->
+  <div class="card">
+    <form id="forma">
+      <div class="full">
+        <label for="nom">Nima uchun?</label>
+        <input id="nom" placeholder="Masalan: non" required>
+      </div>
+      <div>
+        <label for="miqdor">Miqdori</label>
+        <input id="miqdor" type="number" min="1" step="any" value="1" required>
+      </div>
+      <div>
+        <label for="narx">Narxi (1 dona)</label>
+        <input id="narx" type="number" min="0" step="any" placeholder="3000" required>
+      </div>
+      <div class="full">
+        <label for="izoh">Izoh (ixtiyoriy)</label>
+        <input id="izoh" placeholder="Masalan: bozordan oldim">
+      </div>
+      <button class="add" type="submit">Qo'shish</button>
+    </form>
+  </div>
+
+  <!-- Jami -->
+  <div class="card totals">
+    <div><small>Bugun</small><b id="bugunJami">0</b></div>
+    <div><small>Hammasi</small><b id="hammaJami">0</b></div>
+  </div>
+
+  <!-- Zaxira -->
+  <div class="card tools">
+    <button type="button" id="eksportTugma">⬇ Zaxira nusxa</button>
+    <button type="button" id="importTugma">⬆ Tiklash</button>
+    <input type="file" id="fayl" accept=".json,application/json" hidden>
+  </div>
+
+  <!-- Ro'yxat -->
+  <div id="royxat"></div>
+</div>
+
+<script>
+  // ===== 1. MA'LUMOT: hamma yozuvlar shu massivda turadi =====
+  let yozuvlar = [];
+  const KALIT = "xarajatlar_v1";
+
+  // ===== 2. SAQLASH va YUKLASH (localStorage) =====
+  function saqla() {
+    try { localStorage.setItem(KALIT, JSON.stringify(yozuvlar)); } catch (e) {}
+  }
+  function yukla() {
+    try {
+      const matn = localStorage.getItem(KALIT);
+      if (matn) yozuvlar = JSON.parse(matn);
+    } catch (e) { yozuvlar = []; }
+  }
+
+  // ===== 3. YORDAMCHI FUNKSIYALAR =====
+  function bugunSana() {
+    // "2026-10-03" ko'rinishidagi sana
+    return new Date().toLocaleDateString("sv-SE"); // mahalliy sana: 2026-10-03
+  }
+  function pul(son) {
+    return Math.round(son).toLocaleString("ru-RU") + " so'm";
+  }
+
+  // ===== 4. QO'SHISH =====
+  document.getElementById("forma").addEventListener("submit", function (e) {
+    e.preventDefault(); // sahifa yangilanib ketmasin
+
+    const yozuv = {
+      id: Date.now(),                                   // noyob raqam
+      sana: bugunSana(),
+      nom: document.getElementById("nom").value.trim(),
+      miqdor: Number(document.getElementById("miqdor").value),
+      narx: Number(document.getElementById("narx").value),
+      izoh: document.getElementById("izoh").value.trim()
+    };
+
+    yozuvlar.unshift(yozuv); // ro'yxat boshiga qo'shamiz
+    saqla();
+    chiz();
+
+    this.reset();
+    document.getElementById("miqdor").value = 1;
+    document.getElementById("nom").focus();
+  });
+
+  // ===== 5. O'CHIRISH =====
+  function ochir(id) {
+    yozuvlar = yozuvlar.filter(function (y) { return y.id !== id; });
+    saqla();
+    chiz();
+  }
+
+  // ===== 6. EKRANGA CHIZISH =====
+  function chiz() {
+    const joy = document.getElementById("royxat");
+    joy.innerHTML = "";
+
+    // Jami hisoblar
+    let hammasi = 0, bugun = 0;
+    yozuvlar.forEach(function (y) {
+      const summa = y.miqdor * y.narx;
+      hammasi += summa;
+      if (y.sana === bugunSana()) bugun += summa;
+    });
+    document.getElementById("bugunJami").textContent = pul(bugun);
+    document.getElementById("hammaJami").textContent = pul(hammasi);
+
+    if (yozuvlar.length === 0) {
+      joy.innerHTML = '<div class="card empty">Hali yozuv yo\'q. Birinchisini qo\'shing 👆</div>';
+      return;
+    }
+
+    // Kunlar bo'yicha guruhlash
+    const kunlar = {};
+    yozuvlar.forEach(function (y) {
+      if (!kunlar[y.sana]) kunlar[y.sana] = [];
+      kunlar[y.sana].push(y);
+    });
+
+    Object.keys(kunlar).sort().reverse().forEach(function (sana) {
+      const guruh = kunlar[sana];
+      const kunJami = guruh.reduce(function (s, y) { return s + y.miqdor * y.narx; }, 0);
+
+      const karta = document.createElement("div");
+      karta.className = "card";
+      karta.innerHTML =
+        '<div class="day-title"><span>' + sana + '</span><span>' + pul(kunJami) + '</span></div>';
+
+      guruh.forEach(function (y) {
+        const qator = document.createElement("div");
+        qator.className = "item";
+
+        const chap = document.createElement("div");
+        const nom = document.createElement("div");
+        nom.className = "name";
+        nom.textContent = y.nom;
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = y.miqdor + " × " + pul(y.narx) + (y.izoh ? " · " + y.izoh : "");
+        chap.appendChild(nom);
+        chap.appendChild(meta);
+
+        const summa = document.createElement("div");
+        summa.className = "sum";
+        summa.textContent = pul(y.miqdor * y.narx);
+
+        const tugma = document.createElement("button");
+        tugma.className = "del";
+        tugma.textContent = "✕";
+        tugma.title = "O'chirish";
+        tugma.onclick = function () {
+          if (confirm("\"" + y.nom + "\" o'chirilsinmi?")) ochir(y.id);
+        };
+
+        qator.appendChild(chap);
+        qator.appendChild(summa);
+        qator.appendChild(tugma);
+        karta.appendChild(qator);
+      });
+
+      joy.appendChild(karta);
+    });
+  }
+
+  // ===== 7. ZAXIRA NUSXA =====
+  document.getElementById("eksportTugma").onclick = function () {
+    const blob = new Blob([JSON.stringify(yozuvlar, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "xarajatlar-zaxira-" + bugunSana() + ".json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  document.getElementById("importTugma").onclick = function () {
+    document.getElementById("fayl").click();
+  };
+  document.getElementById("fayl").onchange = function () {
+    const fayl = this.files[0];
+    if (!fayl) return;
+    const o = new FileReader();
+    o.onload = function () {
+      try {
+        const yangi = JSON.parse(o.result);
+        if (!Array.isArray(yangi)) throw new Error("noto'g'ri fayl");
+        if (confirm(yangi.length + " ta yozuv tiklansinmi? Hozirgilari almashtiriladi.")) {
+          yozuvlar = yangi;
+          saqla();
+          chiz();
+        }
+      } catch (e) { alert("Fayl o'qilmadi. To'g'ri zaxira faylini tanlang."); }
+    };
+    o.readAsText(fayl);
+    this.value = "";
+  };
+
+  // ===== 8. INTERNETSIZ ISHLASH (service worker) =====
+  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  }
+
+  // ===== 9. BOSHLASH =====
+  yukla();
+  chiz();
+</script>
+</body>
+</html>
