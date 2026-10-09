@@ -1,18 +1,45 @@
-// Service worker: ilovani internetsiz ham ochilishini ta'minlaydi
-const KESH = "xarajatlar-v1";
-const FAYLLAR = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
+const CACHE = "xarajatlarim-v4.0.0";
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icon-192.png",
+  "./icon-512.png"
+];
 
-self.addEventListener("install", function (e) {
-  e.waitUntil(caches.open(KESH).then(function (k) { return k.addAll(FAYLLAR); }));
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).catch(() => {})
+  );
   self.skipWaiting();
 });
-self.addEventListener("activate", function (e) {
-  e.waitUntil(caches.keys().then(function (nomlar) {
-    return Promise.all(nomlar.filter(function (n) { return n !== KESH; })
-      .map(function (n) { return caches.delete(n); }));
-  }));
+
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+    )
+  );
   self.clients.claim();
 });
-self.addEventListener("fetch", function (e) {
-  e.respondWith(caches.match(e.request).then(function (r) { return r || fetch(e.request); }));
+
+self.addEventListener("fetch", (e) => {
+  if (e.request.method !== "GET") return;
+  const url = new URL(e.request.url);
+  if (url.origin !== location.origin) return;
+
+  e.respondWith(
+    caches.match(e.request).then((cached) => {
+      const network = fetch(e.request)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(e.request, copy));
+          }
+          return res;
+        })
+        .catch(() => cached);
+      return cached || network;
+    })
+  );
 });

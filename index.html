@@ -2,279 +2,2148 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Xarajatlarim</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<meta name="format-detection" content="telephone=no">
+<title>Xarajatlarim — Kirim va Chiqim</title>
+<meta name="description" content="Shaxsiy moliyaviy kuzatuvchi: kirim, chiqim, balans">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Xarajatlarim">
+<meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="theme-color" content="#2f6fed">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
+<script>
+try {
+  var t = localStorage.getItem("tema") ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.dataset.theme = t;
+} catch (e) {}
+</script>
 <style>
-  /* 1-QISM: ranglar bir joyda (o'zgaruvchilar) */
-  :root {
-    --bg: #f5f6fa; --card: #ffffff; --text: #1f2430; --muted: #6b7280;
-    --accent: #2f6fed; --danger: #e5484d; --line: #e5e7eb;
-    box-sizing: border-box;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #14161c; --card: #1d2029; --text: #eceef3; --muted: #9aa1b0; --line: #2c303b;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #14161c; --card: #1d2029; --text: #eceef3; --muted: #9aa1b0; --line: #2c303b;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 16px; }
-  h1 { font-size: 22px; margin: 8px 0 16px; }
-  .card { background: var(--card); border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--line); }
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --bg: #f5f7f6;
+  --bg-2: #e8ebe9;
+  --card: #ffffff;
+  --card-2: #fafbfa;
+  --text: #0d1418;
+  --text-2: #2d3a40;
+  --muted: #6b7a80;
+  --line: #dfe5e2;
+  --line-2: #c4cdc9;
+  --accent: #0f766e;
+  --accent-2: #14b8a6;
+  --accent-3: #5eead4;
+  --accent-soft: #d3ede9;
+  --accent-ink: #ffffff;
+  --income: #16a34a;
+  --income-2: #4ade80;
+  --income-soft: #dcfce7;
+  --income-ink: #ffffff;
+  --expense: #dc2626;
+  --expense-2: #f87171;
+  --expense-soft: #fee2e2;
+  --expense-ink: #ffffff;
+  --warn: #d97706;
+  --warn-soft: #fef3c7;
+  --shadow-xs: 0 1px 2px rgba(13,20,24,.04);
+  --shadow-sm: 0 1px 3px rgba(13,20,24,.06), 0 1px 2px rgba(13,20,24,.04);
+  --shadow: 0 4px 12px rgba(13,20,24,.08);
+  --shadow-lg: 0 12px 32px rgba(13,20,24,.12);
+  --shadow-xl: 0 24px 60px rgba(13,20,24,.18);
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+  --t: 200ms cubic-bezier(.4,0,.2,1);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+}
 
-  /* 2-QISM: forma */
-  form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .full { grid-column: 1 / -1; }
-  label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
-  input {
-    width: 100%; padding: 10px; font-size: 16px; border-radius: 8px;
-    border: 1px solid var(--line); background: var(--bg); color: var(--text);
-  }
-  button.add {
-    grid-column: 1 / -1; padding: 12px; font-size: 16px; border: 0; border-radius: 8px;
-    background: var(--accent); color: #fff; cursor: pointer;
-  }
+:root[data-theme="dark"] {
+  --bg: #0a0e10;
+  --bg-2: #0f1518;
+  --card: #151c20;
+  --card-2: #1a2226;
+  --text: #e8eef0;
+  --text-2: #b5c1c5;
+  --muted: #7a878b;
+  --line: #1d262a;
+  --line-2: #2a353a;
+  --accent: #2dd4bf;
+  --accent-2: #5eead4;
+  --accent-3: #99f6e4;
+  --accent-soft: #123732;
+  --accent-ink: #0a0e10;
+  --income: #4ade80;
+  --income-2: #86efac;
+  --income-soft: #0d2a17;
+  --income-ink: #0a0e10;
+  --expense: #f87171;
+  --expense-2: #fca5a5;
+  --expense-soft: #3b1717;
+  --expense-ink: #0a0e10;
+  --warn: #fbbf24;
+  --warn-soft: #3b2d0a;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,.3);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4);
+  --shadow: 0 4px 12px rgba(0,0,0,.4);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.5);
+  --shadow-xl: 0 24px 60px rgba(0,0,0,.6);
+}
 
-  /* 3-QISM: jami */
-  .totals { display: flex; gap: 12px; }
-  .totals div { flex: 1; }
-  .totals small { color: var(--muted); display: block; }
-  .totals b { font-size: 20px; }
+/* ============================================================
+   RESET
+   ============================================================ */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom, 0px) + 100px) max(14px, env(safe-area-inset-left));
+  transition: background var(--t), color var(--t);
+  overscroll-behavior-y: none;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+body.lock { overflow: hidden; position: fixed; width: 100%; }
+.wrap { max-width: 580px; margin: 0 auto; width: 100%; }
+h1 { font-size: 24px; font-weight: 800; letter-spacing: -.8px; }
+h2 { font-size: 15px; font-weight: 700; letter-spacing: -.2px; display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+small { color: var(--muted); font-size: 12px; }
+button { font: inherit; cursor: pointer; color: inherit; user-select: none; border: 0; background: none; transition: var(--t); -webkit-appearance: none; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: .4; cursor: not-allowed; }
+input, select {
+  width: 100%; margin-top: 6px; padding: 12px 14px;
+  font-size: 16px; font-family: inherit;
+  border: 1.5px solid var(--line); border-radius: var(--radius);
+  background: var(--bg); color: var(--text);
+  transition: border-color var(--t);
+  -webkit-appearance: none; appearance: none;
+  min-height: 48px;
+}
+input:hover, select:hover { border-color: var(--line-2); }
+input:focus, select:focus { border-color: var(--accent); outline: none; background: var(--card); }
+input::placeholder { color: var(--muted); opacity: .7; }
+input[type="date"] { min-width: 0; text-align: left; }
+input::-webkit-date-and-time-value { text-align: left; }
+label {
+  display: block; font-size: 11.5px; font-weight: 700;
+  color: var(--muted); margin-top: 4px;
+  letter-spacing: .5px; text-transform: uppercase;
+}
 
-  /* 4-QISM: ro'yxat */
-  .day-title { display: flex; justify-content: space-between; font-weight: 600; margin: 4px 0 8px; }
-  .item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
-  .item .name { font-weight: 500; }
-  .item .meta { font-size: 13px; color: var(--muted); word-break: break-word; }
-  .item .sum { white-space: nowrap; font-weight: 600; }
-  .del { background: none; border: 0; color: var(--danger); font-size: 18px; cursor: pointer; }
-  .tools { display: flex; gap: 8px; }
-  .tools button { flex: 1; padding: 10px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; }
-  .empty { color: var(--muted); text-align: center; padding: 12px; }
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 8px; }
+.top h1 {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--text) 40%, var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; font-size: 24px;
+}
+.top h1::before {
+  content: ''; width: 6px; height: 24px; border-radius: 4px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-3));
+  flex-shrink: 0;
+}
+.top-tugma { display: flex; gap: 6px; }
+.ikon {
+  min-width: 42px; min-height: 42px; padding: 8px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); font-size: 17px; color: var(--text-2);
+  display: inline-grid; place-items: center; transition: var(--t);
+  flex-shrink: 0;
+}
+.ikon:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+.ikon:active { transform: scale(.94); }
+
+/* ============================================================
+   CARD
+   ============================================================ */
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); padding: 16px;
+  margin-bottom: 12px; transition: var(--t);
+}
+.card.elevated { box-shadow: var(--shadow-sm); }
+
+/* ============================================================
+   NOTICE
+   ============================================================ */
+.notice {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; background: var(--accent-soft); color: var(--accent);
+  font-size: 13px; padding: 14px 16px;
+  border-radius: var(--radius-lg); margin-bottom: 12px;
+  font-weight: 600; animation: slideDown .3s;
+}
+.notice.warn { background: var(--warn-soft); color: var(--warn); }
+.notice .btn-mini {
+  background: var(--accent); color: var(--accent-ink);
+  padding: 8px 14px; font-size: 12.5px;
+  border-radius: var(--radius-sm); font-weight: 700;
+  white-space: nowrap;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   BALANCE CARD
+   ============================================================ */
+.balance-card {
+  background: linear-gradient(135deg, var(--card) 0%, var(--card-2) 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.balance-card::before {
+  content: ''; position: absolute; top: -40%; right: -15%;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, var(--accent-soft), transparent 70%);
+  opacity: .5; pointer-events: none;
+}
+.balance-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--muted); font-weight: 800; margin-bottom: 8px;
+}
+.balance-value {
+  font-size: 34px; font-weight: 900; letter-spacing: -1.8px;
+  line-height: 1.05; margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+  transition: color var(--t);
+}
+.balance-value.positive { color: var(--income); }
+.balance-value.negative { color: var(--expense); }
+.balance-value.neutral { color: var(--text); }
+.balance-note { font-size: 12px; color: var(--muted); font-weight: 500; }
+.balance-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.balance-item { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.balance-item .icon {
+  width: 38px; height: 38px; border-radius: var(--radius-sm);
+  display: grid; place-items: center; font-size: 18px; flex-shrink: 0;
+  font-weight: 800;
+}
+.balance-item.income .icon { background: var(--income-soft); color: var(--income); }
+.balance-item.expense .icon { background: var(--expense-soft); color: var(--expense); }
+.balance-item .info { min-width: 0; flex: 1; }
+.balance-item .lbl {
+  font-size: 10px; color: var(--muted); font-weight: 800;
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.balance-item .val {
+  font-size: 14px; font-weight: 800; margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.balance-item.income .val { color: var(--income); }
+.balance-item.expense .val { color: var(--expense); }
+
+/* ============================================================
+   MODE TABS
+   ============================================================ */
+.rejimlar {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+  padding: 4px; background: var(--bg-2);
+  border-radius: var(--radius); margin-bottom: 12px;
+}
+.rejimlar button {
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  color: var(--muted); font-weight: 700; font-size: 13px;
+  text-align: center;
+}
+.rejimlar button.faol {
+  background: var(--card); color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================
+   MONTH NAV
+   ============================================================ */
+.oy {
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 12px 0; gap: 8px;
+}
+.oy > span {
+  font-weight: 800; font-size: 15px; color: var(--text);
+  letter-spacing: -.3px; padding: 8px 12px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  flex: 1; text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0;
+}
+
+/* ============================================================
+   SUMMARY
+   ============================================================ */
+.jami { display: flex; flex-direction: column; gap: 6px; }
+.jami b {
+  display: block; font-size: 30px; margin-top: 4px;
+  letter-spacing: -1.5px; font-weight: 800;
+  color: var(--text); line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+.stat {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.stat > div { min-width: 0; }
+.stat b {
+  display: block; margin-top: 6px;
+  word-break: break-word; font-size: 14px;
+  font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.stat > div > small {
+  font-size: 11px; text-transform: uppercase;
+  letter-spacing: .5px; font-weight: 700;
+}
+
+/* ============================================================
+   CATEGORY BARS
+   ============================================================ */
+.qator { margin-bottom: 14px; }
+.qator:last-child { margin-bottom: 0; }
+.qator .ustki {
+  display: flex; justify-content: space-between;
+  font-size: 13px; margin-bottom: 6px; gap: 8px;
+  align-items: baseline;
+}
+.qator .ustki > span:first-child {
+  font-weight: 600; color: var(--text);
+  min-width: 0; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.qator .ustki > span:last-child {
+  color: var(--muted); font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap; font-weight: 600;
+}
+.yol {
+  height: 10px; background: var(--bg-2);
+  border-radius: var(--radius-full); overflow: hidden;
+}
+.yol i {
+  display: block; height: 100%;
+  border-radius: var(--radius-full);
+  transition: width .7s cubic-bezier(.4,0,.2,1);
+}
+.yol i.income { background: linear-gradient(90deg, var(--income), var(--income-2)); }
+.yol i.expense { background: linear-gradient(90deg, var(--expense), var(--expense-2)); }
+
+/* ============================================================
+   LIMIT
+   ============================================================ */
+.limit-head {
+  display: flex; justify-content: space-between;
+  align-items: baseline; gap: 8px; margin-bottom: 12px;
+}
+.limit-head small {
+  font-weight: 700; color: var(--text);
+  font-size: 12.5px; min-width: 0;
+  overflow-wrap: anywhere;
+}
+.limit-head b {
+  font-size: 17px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   FILTER
+   ============================================================ */
+.filtr {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr);
+  gap: 8px; padding: 12px;
+}
+.filtr input, .filtr select { margin: 0; }
+
+/* ============================================================
+   LIST ITEM
+   ============================================================ */
+.yozuv {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 8px 12px 12px;
+  margin-bottom: 8px;
+  transition: var(--t);
+  position: relative;
+}
+.yozuv::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; border-radius: 0 3px 3px 0;
+}
+.yozuv.income::before { background: var(--income); }
+.yozuv.expense::before { background: var(--expense); }
+.yozuv:hover { border-color: var(--line-2); }
+.yozuv .em {
+  font-size: 20px; line-height: 1; flex-shrink: 0;
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: var(--radius-sm);
+}
+.yozuv.income .em { background: var(--income-soft); }
+.yozuv.expense .em { background: var(--bg-2); }
+.yozuv .matn { flex: 1; min-width: 0; }
+.yozuv .nom {
+  font-weight: 600; overflow-wrap: anywhere;
+  font-size: 14px; color: var(--text);
+  line-height: 1.3;
+}
+.yozuv .tafsilot {
+  font-size: 12px; color: var(--muted);
+  overflow-wrap: anywhere;
+  margin-top: 2px; line-height: 1.3;
+}
+.yozuv .summa {
+  font-weight: 800; white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px; flex-shrink: 0;
+  letter-spacing: -.3px;
+}
+.yozuv.income .summa { color: var(--income); }
+.yozuv.expense .summa { color: var(--text); }
+.yozuv .ochir { color: var(--muted); }
+.yozuv .ochir:hover { color: var(--expense); background: var(--expense-soft); }
+
+/* ============================================================
+   DAY GROUP
+   ============================================================ */
+.kun-guruh {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 8px; margin-top: 8px; cursor: pointer;
+  border-radius: var(--radius-sm); transition: var(--t); gap: 8px;
+}
+.kun-guruh:hover { background: var(--card-2); }
+.kun-guruh .kun-nom {
+  font-weight: 700; font-size: 13px; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+  min-width: 0; overflow: hidden;
+}
+.kun-guruh .kun-nom::before {
+  content: ''; width: 3px; height: 14px;
+  background: var(--accent); border-radius: 2px;
+  flex-shrink: 0;
+}
+.kun-guruh .kun-jami {
+  font-size: 12px; color: var(--muted);
+  font-weight: 700; font-variant-numeric: tabular-nums;
+  display: flex; align-items: center; gap: 6px;
+  flex-shrink: 0;
+}
+.kun-guruh .kun-jami::after {
+  content: '›'; font-size: 18px;
+  color: var(--muted); font-weight: 400;
+}
+
+/* ============================================================
+   EMPTY
+   ============================================================ */
+.bosh {
+  text-align: center; color: var(--muted);
+  padding: 40px 20px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px; font-size: 13px;
+}
+.bosh::before { content: '📭'; font-size: 42px; opacity: .5; }
+.bosh-kichik { color: var(--muted); font-size: 13px; padding: 12px 0; text-align: center; }
+
+/* ============================================================
+   FAB
+   ============================================================ */
+.fab {
+  position: fixed;
+  right: max(16px, calc((100vw - 580px) / 2 + 16px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: var(--accent-ink); font-size: 32px; font-weight: 300;
+  line-height: 1; box-shadow: 0 10px 28px rgba(15,118,110,.4);
+  z-index: 5; display: grid; place-items: center;
+  transition: var(--t);
+}
+.fab:hover { transform: scale(1.06) rotate(90deg); }
+.fab:active { transform: scale(.94); }
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.varaq {
+  position: fixed; inset: 0; z-index: 20;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.orqa {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn .25s ease;
+}
+.panel {
+  position: relative; width: 100%; max-width: 580px;
+  max-height: 92vh; max-height: 92dvh;
+  overflow-y: auto;
+  background: var(--card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 20px 18px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  box-shadow: 0 -20px 60px rgba(0,0,0,.3);
+  animation: slideUp .35s cubic-bezier(.4,0,.2,1);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.panel::-webkit-scrollbar { width: 5px; }
+.panel::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.varaq-bosh {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: -20px;
+  background: var(--card); z-index: 1;
+  padding-top: 4px;
+}
+.varaq-bosh h2 { margin: 0; font-size: 18px; }
+
+/* ============================================================
+   TYPE TOGGLE
+   ============================================================ */
+.tur-tanlash {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-bottom: 14px; padding: 4px;
+  background: var(--bg-2); border-radius: var(--radius);
+}
+.tur-tanlash button {
+  padding: 12px 8px; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 14px; color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; transition: var(--t);
+}
+.tur-tanlash button.faol.expense {
+  background: var(--expense); color: var(--expense-ink);
+  box-shadow: 0 4px 12px rgba(220,38,38,.25);
+}
+.tur-tanlash button.faol.income {
+  background: var(--income); color: var(--income-ink);
+  box-shadow: 0 4px 12px rgba(22,163,74,.25);
+}
+
+/* ============================================================
+   FORM
+   ============================================================ */
+.grid {
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  gap: 12px;
+}
+.grid > div { min-width: 0; }
+.full { grid-column: 1 / -1; }
+
+.sana-tez {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 6px; margin-top: 8px;
+}
+.sana-tez button {
+  padding: 9px 6px; font-size: 11.5px; font-weight: 700;
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); color: var(--muted);
+  white-space: nowrap;
+}
+.sana-tez button:hover { background: var(--accent-soft); color: var(--accent); }
+.sana-tez button.faol {
+  background: var(--accent); color: var(--accent-ink);
+  border-color: var(--accent);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; width: 100%; padding: 14px 18px;
+  font-size: 15px; font-weight: 700; border: 0;
+  border-radius: var(--radius); background: var(--accent);
+  color: var(--accent-ink); transition: var(--t);
+  min-height: 50px; text-align: center;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(15,118,110,.3); }
+.btn:active { transform: translateY(0); }
+.btn.income { background: var(--income); }
+.btn.income:hover { box-shadow: 0 8px 20px rgba(22,163,74,.3); }
+.btn.expense { background: var(--expense); }
+.btn.expense:hover { box-shadow: 0 8px 20px rgba(220,38,38,.3); }
+.btn.ikkinchi {
+  background: transparent; color: var(--text);
+  border: 1.5px solid var(--line);
+}
+.btn.ikkinchi:hover { background: var(--bg-2); box-shadow: none; }
+.btn.kichik { padding: 10px 16px; font-size: 13px; min-height: 42px; width: auto; }
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+.soz-bolim {
+  margin: 22px 0 10px; font-size: 11px;
+  font-weight: 800; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1.2px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 8px;
+}
+.sat {
+  display: flex; align-items: center; gap: 4px;
+  padding: 10px 0; border-bottom: 1px solid var(--line);
+}
+.sat:last-child { border-bottom: 0; }
+.sat span {
+  flex: 1; min-width: 0; overflow-wrap: anywhere;
+  font-size: 14px; font-weight: 500;
+}
+.sat .ikon { min-width: 34px; min-height: 34px; font-size: 13px; padding: 4px; }
+.qosh-qator { display: flex; gap: 8px; margin-top: 10px; }
+.qosh-qator input { margin: 0; flex: 1; min-width: 0; }
+.qosh-qator .btn { width: auto; padding: 0 22px; }
+
+/* ============================================================
+   DAYS CHART — FINAL FIX
+   ============================================================ */
+.kunlar-wrap { position: relative; margin-top: 6px; }
+.kunlar {
+  display: grid;
+  grid-template-columns: repeat(31, minmax(0, 1fr));
+  gap: 3px;
+  height: 110px;
+  align-items: end;
+  padding: 4px 0;
+  background:
+    linear-gradient(to top, var(--bg-2) 1px, transparent 1px) 0 0 / 100% 25%;
+}
+.ustun {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: var(--t);
+  min-width: 0;
+  overflow: hidden;
+}
+.ustun-bar {
+  display: block;
+  width: 100%;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  border-radius: 2px 2px 0 0;
+  transition: height .5s cubic-bezier(.4,0,.2,1), filter var(--t);
+  min-height: 3px;
+  will-change: height;
+}
+.ustun.bosh .ustun-bar {
+  background: var(--line);
+  opacity: .8;
+}
+.ustun.bugun .ustun-bar {
+  box-shadow: 0 0 0 2px var(--text), 0 0 8px var(--accent-soft);
+}
+.ustun:hover .ustun-bar { filter: brightness(1.15); }
+.ustun:disabled { cursor: default; opacity: .35; }
+.ustun:active:not(:disabled) .ustun-bar { filter: brightness(.9); }
+
+.kunlar-yozuv {
+  display: flex; justify-content: space-between;
+  font-size: 10.5px; color: var(--muted);
+  margin-top: 8px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+#toast {
+  position: fixed; left: 12px; right: 12px;
+  top: max(12px, env(safe-area-inset-top));
+  max-width: 548px; margin: 0 auto; z-index: 100;
+  display: flex; justify-content: space-between;
+  align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: var(--radius);
+  background: var(--text); color: var(--bg);
+  font-size: 13.5px; font-weight: 600;
+  box-shadow: var(--shadow-xl);
+  animation: slideDown .3s cubic-bezier(.4,0,.2,1);
+}
+#toast button {
+  background: none; border: 0; font-weight: 700;
+  text-decoration: underline; color: inherit;
+  padding: 4px 8px; font-size: 13px; white-space: nowrap;
+}
+.versiya {
+  text-align: center; font-size: 11px; color: var(--muted);
+  margin: 24px 0 0; font-weight: 600; letter-spacing: .5px;
+}
+
+/* ============================================================
+   RESPONSIVE — TELEFON UCHUN
+   ============================================================ */
+@media (max-width: 400px) {
+  body { padding-left: 12px; padding-right: 12px; }
+  .top h1 { font-size: 20px; }
+  .balance-value { font-size: 28px; }
+  .jami b { font-size: 26px; }
+  .stat { grid-template-columns: 1fr; gap: 10px; }
+  .grid { grid-template-columns: 1fr; }
+  .filtr { grid-template-columns: 1fr; }
+  .balance-grid { grid-template-columns: 1fr; gap: 10px; }
+  .kunlar { gap: 2px; height: 90px; }
+  .sana-tez { grid-template-columns: repeat(2, 1fr); }
+  .tur-tanlash button { font-size: 13px; padding: 11px 6px; }
+  .yozuv .em { width: 36px; height: 36px; font-size: 18px; }
+  .yozuv .summa { font-size: 13px; }
+}
+@media (max-width: 340px) {
+  .balance-value { font-size: 24px; letter-spacing: -1.2px; }
+  .jami b { font-size: 22px; }
+  .oy > span { font-size: 13px; padding: 6px 8px; }
+  .stat b { font-size: 13px; }
+  .balance-item .val { font-size: 13px; }
+}
+@media (min-width: 720px) {
+  body { padding-top: 24px; }
+  .panel {
+    border-radius: var(--radius-xl);
+    margin-bottom: 20px;
+    max-height: 88vh;
+    border: 1px solid var(--line);
+  }
+  .varaq { align-items: center; }
+}
+
+/* Landscape telefonda */
+@media (max-height: 500px) {
+  .panel { max-height: 100vh; border-radius: 0; }
+  .varaq-bosh { position: relative; top: 0; }
+}
+
+/* Prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>💸 Xarajatlarim</h1>
 
-  <!-- Forma -->
-  <div class="card">
-    <form id="forma">
+  <div class="top">
+    <h1>Xarajatlarim</h1>
+    <div class="top-tugma">
+      <button class="ikon" id="sozTugma" title="Sozlamalar" aria-label="Sozlamalar">⚙️</button>
+      <button class="ikon" id="tema" title="Rejim" aria-label="Rejim"></button>
+    </div>
+  </div>
+
+  <div class="notice" id="eslatma" hidden>
+    <span id="eslatmaMatn"></span>
+    <button class="btn-mini" type="button" id="eslatmaTugma">Zaxira olish</button>
+  </div>
+
+  <!-- BALANS -->
+  <div class="balance-card">
+    <div class="balance-label">Joriy balans</div>
+    <div class="balance-value neutral" id="balans">0 so'm</div>
+    <div class="balance-note" id="balansNote">—</div>
+    <div class="balance-grid">
+      <div class="balance-item income">
+        <div class="icon">↓</div>
+        <div class="info">
+          <div class="lbl">Kirim</div>
+          <div class="val" id="balansKirim">0 so'm</div>
+        </div>
+      </div>
+      <div class="balance-item expense">
+        <div class="icon">↑</div>
+        <div class="info">
+          <div class="lbl">Chiqim</div>
+          <div class="val" id="balansChiqim">0 so'm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REJIM -->
+  <div class="rejimlar" role="tablist">
+    <button type="button" id="rejimKun" role="tab">📅 Kun</button>
+    <button type="button" id="rejimOy" role="tab">📊 Oy</button>
+  </div>
+
+  <div class="oy">
+    <button class="ikon" id="oldingi" aria-label="Oldingi">◀</button>
+    <span id="oyNomi">—</span>
+    <button class="ikon" id="keyingi" aria-label="Keyingi">▶</button>
+  </div>
+
+  <div class="card elevated">
+    <div class="jami">
+      <small id="jamiNom">Shu oyda chiqim</small>
+      <b id="jami">0 so'm</b>
+    </div>
+    <div class="stat">
+      <div>
+        <small id="ortachaNom">Kunlik o'rtacha</small>
+        <b id="ortacha">—</b>
+      </div>
+      <div>
+        <small>Eng katta chiqim</small>
+        <b id="eng">—</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice" id="yangilanish" hidden>
+    <span>Yangi versiya tayyor</span>
+    <button class="btn-mini" type="button" id="yangilashTugma">Yangilash</button>
+  </div>
+
+  <div class="card" id="limitKarta" hidden>
+    <div class="limit-head">
+      <small id="limitNom"></small>
+      <b id="limitFoiz"></b>
+    </div>
+    <div class="yol"><i id="limitChiziq" class="expense"></i></div>
+    <small id="limitQoldi" style="display:block;margin-top:10px;font-size:12px;color:var(--muted);font-weight:500"></small>
+  </div>
+
+  <div class="card" id="grafikKarta">
+    <h2>💰 Kategoriyalar bo'yicha</h2>
+    <div id="grafik"></div>
+  </div>
+
+  <div class="card" id="kunlarKarta">
+    <h2>📈 Kunlar bo'yicha</h2>
+    <div class="kunlar-wrap">
+      <div class="kunlar" id="kunlar"></div>
+    </div>
+    <div class="kunlar-yozuv">
+      <span>1-kun</span>
+      <span id="kunOxiri">31-kun</span>
+    </div>
+  </div>
+
+  <div class="card filtr" id="filtrKarta">
+    <input id="qidir" type="search" placeholder="🔍 Qidirish..." aria-label="Qidirish">
+    <select id="filtrKat" aria-label="Kategoriya"><option value="">Hammasi</option></select>
+  </div>
+
+  <div id="royxat"></div>
+
+</div>
+
+<button class="fab" type="button" id="fab" aria-label="Yozuv qo'shish">+</button>
+
+<!-- YANGI YOZUV -->
+<div class="varaq" id="varaq" hidden role="dialog" aria-modal="true" aria-labelledby="varaqSarlavha">
+  <div class="orqa" id="orqa"></div>
+  <div class="panel">
+    <div class="varaq-bosh">
+      <h2 id="varaqSarlavha">Yangi yozuv</h2>
+      <button type="button" class="ikon" id="yop" aria-label="Yopish">✕</button>
+    </div>
+
+    <div class="tur-tanlash" id="turTanlash">
+      <button type="button" data-tur="expense" id="turChiqim">↑ Chiqim</button>
+      <button type="button" data-tur="income" id="turKirim">↓ Kirim</button>
+    </div>
+
+    <form id="forma" class="grid" autocomplete="off" novalidate>
       <div class="full">
         <label for="nom">Nima uchun?</label>
-        <input id="nom" placeholder="Masalan: non" required>
+        <input id="nom" placeholder="Masalan: non" autocomplete="off" autocapitalize="sentences" enterkeyhint="next" required>
+      </div>
+      <div class="full">
+        <label for="kategoriya">Kategoriya</label>
+        <select id="kategoriya"></select>
       </div>
       <div>
         <label for="miqdor">Miqdori</label>
-        <input id="miqdor" type="number" min="1" step="any" value="1" required>
+        <input type="text" id="miqdor" inputmode="decimal" value="1" required>
       </div>
       <div>
-        <label for="narx">Narxi (1 dona)</label>
-        <input id="narx" type="number" min="0" step="any" placeholder="3000" required>
+        <label for="narx">Narxi</label>
+        <input type="text" id="narx" inputmode="decimal" enterkeyhint="done" required>
       </div>
       <div class="full">
-        <label for="izoh">Izoh (ixtiyoriy)</label>
-        <input id="izoh" placeholder="Masalan: bozordan oldim">
+        <label for="sana">Sana</label>
+        <input type="date" id="sana">
+        <div class="sana-tez" id="sanaTez">
+          <button type="button" data-kun="0">Bugun</button>
+          <button type="button" data-kun="1">Kecha</button>
+          <button type="button" data-kun="2">2 kun</button>
+          <button type="button" data-kun="7">1 hafta</button>
+        </div>
       </div>
-      <button class="add" type="submit">Qo'shish</button>
+      <div class="full">
+        <label for="izoh">Izoh</label>
+        <input id="izoh" placeholder="ixtiyoriy" autocomplete="off">
+      </div>
+      <button class="btn full expense" id="tugma" type="submit">Chiqim qo'shish</button>
     </form>
   </div>
+</div>
 
-  <!-- Jami -->
-  <div class="card totals">
-    <div><small>Bugun</small><b id="bugunJami">0</b></div>
-    <div><small>Hammasi</small><b id="hammaJami">0</b></div>
+<!-- SOZLAMALAR -->
+<div class="varaq" id="sozlama" hidden role="dialog" aria-modal="true" aria-labelledby="sozSarlavha">
+  <div class="orqa" id="sozOrqa"></div>
+  <div class="panel">
+    <div class="varaq-bosh">
+      <h2 id="sozSarlavha">Sozlamalar</h2>
+      <button type="button" class="ikon" id="sozYop" aria-label="Yopish">✕</button>
+    </div>
+
+    <label for="limitKirish">Oylik chiqim limiti (so'm)</label>
+    <input type="text" id="limitKirish" inputmode="decimal" placeholder="Masalan: 3000000">
+    <small>Bo'sh qoldirsangiz — limit o'chiq.</small>
+
+    <div class="soz-bolim">🏷️ Chiqim kategoriyalari</div>
+    <div id="katRoyxat"></div>
+    <div class="qosh-qator">
+      <input id="katYangi" maxlength="24" placeholder="🏷️ Yangi" autocomplete="off">
+      <button class="btn" type="button" id="katQosh">+</button>
+    </div>
+
+    <div class="soz-bolim">💵 Kirim turlari</div>
+    <div id="katKirimRoyxat"></div>
+    <div class="qosh-qator">
+      <input id="katKirimYangi" maxlength="24" placeholder="💵 Yangi tur" autocomplete="off">
+      <button class="btn" type="button" id="katKirimQosh">+</button>
+    </div>
+
+    <div class="soz-bolim">🔁 Takrorlanuvchi chiqimlar</div>
+    <div id="takrorRoyxat"></div>
+    <div class="grid" style="margin-top:12px">
+      <input class="full" id="takrorNom" maxlength="60" placeholder="Nomi (Ijara)" autocomplete="off">
+      <input id="takrorNarx" type="text" inputmode="decimal" placeholder="Summa">
+      <input id="takrorKun" type="number" min="1" max="28" step="1" inputmode="numeric" placeholder="Kun (1-28)">
+      <select class="full" id="takrorKat"></select>
+      <button class="btn ikkinchi full" type="button" id="takrorQosh">+ Qo'shish</button>
+    </div>
+
+    <div class="soz-bolim">💾 Ma'lumotlar</div>
+    <div class="grid">
+      <button class="btn ikkinchi" type="button" id="eksportTugma">📤 Zaxira</button>
+      <button class="btn ikkinchi" type="button" id="importTugma">📥 Tiklash</button>
+      <input type="file" id="fayl" accept=".json,application/json" hidden>
+    </div>
+    <button class="btn ikkinchi" type="button" id="csvTugma" style="margin-top:10px">📊 Excel (CSV)</button>
+
+    <p class="versiya" id="versiya"></p>
   </div>
+</div>
 
-  <!-- Zaxira -->
-  <div class="card tools">
-    <button type="button" id="eksportTugma">⬇ Zaxira nusxa</button>
-    <button type="button" id="importTugma">⬆ Tiklash</button>
-    <input type="file" id="fayl" accept=".json,application/json" hidden>
-  </div>
-
-  <!-- Ro'yxat -->
-  <div id="royxat"></div>
+<div id="toast" role="status" aria-live="polite" hidden>
+  <span id="toastMatn"></span>
+  <button type="button" id="qaytar">Qaytarish</button>
 </div>
 
 <script>
-  // ===== 1. MA'LUMOT: hamma yozuvlar shu massivda turadi =====
-  let yozuvlar = [];
-  const KALIT = "xarajatlar_v1";
+"use strict";
 
-  // ===== 2. SAQLASH va YUKLASH (localStorage) =====
-  function saqla() {
-    try { localStorage.setItem(KALIT, JSON.stringify(yozuvlar)); } catch (e) {}
+/* ============================================================
+   CONSTANTS
+   ============================================================ */
+const KALIT = "xarajatlar_v5";
+const VERSIYA = "5.0.0";
+const BOSHQA = "📦 Boshqa";
+const STANDART_CHIQIM = [
+  "🍞 Oziq-ovqat", "🚌 Transport", "🏠 Uy-ro'zg'or",
+  "👕 Kiyim", "💊 Salomatlik", "🎮 Ko'ngilochar", BOSHQA
+];
+const STANDART_KIRIM = [
+  "💼 Ish haqi", "💻 Frilans", "🎁 Sovg'a",
+  "📈 Investitsiya", "🏦 Boshqa"
+];
+const OYLAR = ["Yanvar","Fevral","Mart","Aprel","May","Iyun",
+               "Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"];
+
+/* ============================================================
+   MIGRATSIYA
+   ============================================================ */
+(function migrate() {
+  try {
+    const m = [
+      ["kategoriyalar", "kategoriyalar_v5"],
+      ["limit", "limit_v5"],
+      ["takrorlar", "takrorlar_v5"],
+      ["xarajatlar", KALIT],
+      ["xarajatlar_v4", KALIT]
+    ];
+    m.forEach(([eski, yangi]) => {
+      const e = localStorage.getItem(eski);
+      const y = localStorage.getItem(yangi);
+      if (e && !y) localStorage.setItem(yangi, e);
+    });
+  } catch (e) {}
+})();
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+
+const bugun = () => {
+  const d = new Date();
+  return d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+};
+
+const sanaTogri = (s) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const [y, m, d] = s.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+};
+
+const pul = (n) => {
+  const x = Math.round(Number(n) || 0);
+  const sign = x < 0 ? "−" : "";
+  return sign + Math.abs(x).toLocaleString("ru-RU").replace(/\u00A0/g, " ").replace(/,/g, " ") + " so'm";
+};
+
+const sonKirit = (s) => {
+  if (typeof s === "number") return s;
+  return parseFloat(String(s || "").replace(/\s/g, "").replace(",", ".")) || 0;
+};
+
+const summaOf = (y) => Number(y.miqdor) * Number(y.narx);
+
+function el(tag, klass, matn) {
+  const e = document.createElement(tag);
+  if (klass) e.className = klass;
+  if (matn !== undefined) e.textContent = matn;
+  return e;
+}
+
+function keyingiOy(k) {
+  const [y, m] = k.split("-").map(Number);
+  const d = new Date(y, m, 1);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+}
+
+function kunFarqi(a, b) {
+  const [y1, m1, d1] = a.split("-").map(Number);
+  const [y2, m2, d2] = b.split("-").map(Number);
+  return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000);
+}
+
+function kunNomi(sana) {
+  const [y, m, d] = sana.split("-").map(Number);
+  return d + "-" + OYLAR[m - 1].toLowerCase() + " " + y + (sana === bugun() ? " · bugun" : "");
+}
+
+function sanaQoshish(sana, kun) {
+  const [y, m, d] = sana.split("-").map(Number);
+  const nd = new Date(y, m - 1, d + kun);
+  return nd.getFullYear() + "-" +
+    String(nd.getMonth() + 1).padStart(2, "0") + "-" +
+    String(nd.getDate()).padStart(2, "0");
+}
+
+/* ============================================================
+   KATEGORIYA
+   ============================================================ */
+function kategoriyaTozala(royxat, zaxira) {
+  const t = [];
+  (Array.isArray(royxat) ? royxat : []).forEach((k) => {
+    if (typeof k !== "string") return;
+    k = k.trim().slice(0, 30);
+    if (k && t.indexOf(k) < 0 && t.length < 19) t.push(k);
+  });
+  if (t.length === 0) zaxira.forEach((k) => t.push(k));
+  return t;
+}
+
+let KATEGORIYALAR = STANDART_CHIQIM.slice();
+let KATEGORIYALAR_KIRIM = STANDART_KIRIM.slice();
+
+try {
+  const s = JSON.parse(localStorage.getItem("kategoriyalar_v5"));
+  if (Array.isArray(s) && s.length) KATEGORIYALAR = kategoriyaTozala(s, STANDART_CHIQIM);
+} catch (e) {}
+try {
+  const s = JSON.parse(localStorage.getItem("kategoriyalar_kirim_v5"));
+  if (Array.isArray(s) && s.length) KATEGORIYALAR_KIRIM = kategoriyaTozala(s, STANDART_KIRIM);
+} catch (e) {}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let yozuvlar = [];
+let takrorlar = [];
+let limit = 0;
+let oy = bugun().slice(0, 7);
+let kun = bugun();
+let korinish = "kun";
+let tahrirId = null;
+let tanlanganSana = null;
+let tanlanganTur = "expense";
+let ochirilgan = null;
+let toastVaqt = null;
+let korilganKun = bugun();
+
+/* ============================================================
+   YOZUV TOZALASH
+   ============================================================ */
+function yozuvTozala(royxat) {
+  const ishlatilgan = {};
+  return (Array.isArray(royxat) ? royxat : [])
+    .filter((y) => y && typeof y.nom === "string" &&
+      y.narx !== null && y.narx !== "" &&
+      Number(y.miqdor) > 0 && Number(y.narx) >= 0)
+    .map((y, i) => {
+      let id = Number(y.id) || Date.now() + i;
+      while (ishlatilgan[id]) id++;
+      ishlatilgan[id] = true;
+
+      const tur = y.tur === "income" ? "income" : "expense";
+      const royxat = tur === "income" ? KATEGORIYALAR_KIRIM : KATEGORIYALAR;
+      let kat = typeof y.kategoriya === "string" ? y.kategoriya.trim().slice(0, 30) : "";
+      if (!kat) kat = tur === "income" ? KATEGORIYALAR_KIRIM[0] : BOSHQA;
+      if (royxat.indexOf(kat) < 0) {
+        if (royxat.length < 20) royxat.push(kat);
+        else kat = tur === "income" ? KATEGORIYALAR_KIRIM[0] : BOSHQA;
+      }
+
+      return {
+        id, tur,
+        nom: (y.nom || "").trim().slice(0, 100) || "Nomsiz",
+        kategoriya: kat,
+        miqdor: Number(y.miqdor),
+        narx: Number(y.narx),
+        izoh: String(y.izoh || "").slice(0, 200),
+        sana: sanaTogri(y.sana) ? y.sana : bugun()
+      };
+    });
+}
+
+function takrorTozala(royxat) {
+  return (Array.isArray(royxat) ? royxat : [])
+    .filter((r) => r && typeof r.nom === "string" && r.nom.trim() &&
+      r.narx !== null && r.narx !== "" && Number(r.narx) >= 0 &&
+      Number(r.kun) >= 1 && Number(r.kun) <= 28 &&
+      /^\d{4}-\d{2}$/.test(r.keyingi))
+    .map((r, i) => ({
+      id: Number(r.id) || Date.now() + i,
+      nom: r.nom.trim().slice(0, 60),
+      kategoriya: KATEGORIYALAR.indexOf(r.kategoriya) >= 0 ? r.kategoriya : BOSHQA,
+      narx: Number(r.narx),
+      kun: Math.floor(Number(r.kun)),
+      keyingi: r.keyingi
+    }));
+}
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+try {
+  yozuvlar = yozuvTozala(JSON.parse(localStorage.getItem(KALIT)) || []);
+} catch (e) {
+  try { localStorage.setItem(KALIT + "_buzilgan", localStorage.getItem(KALIT)); } catch (_) {}
+  yozuvlar = [];
+}
+try { takrorlar = takrorTozala(JSON.parse(localStorage.getItem("takrorlar_v5"))); } catch (e) {}
+try { limit = Number(localStorage.getItem("limit_v5")) || 0; } catch (e) {}
+
+let himoyaSoralgan = false;
+function xotiraHimoyasi() {
+  if (himoyaSoralgan || !(navigator.storage && navigator.storage.persist)) return;
+  himoyaSoralgan = true;
+  navigator.storage.persist().catch(() => {});
+}
+
+function saqla() {
+  try {
+    localStorage.setItem(KALIT, JSON.stringify(yozuvlar));
+    localStorage.setItem("kategoriyalar_v5", JSON.stringify(KATEGORIYALAR));
+    localStorage.setItem("kategoriyalar_kirim_v5", JSON.stringify(KATEGORIYALAR_KIRIM));
+    xotiraHimoyasi();
+  } catch (e) {
+    toastKorsat("⚠️ Saqlash imkoni yo'q", false);
   }
-  function yukla() {
-    try {
-      const matn = localStorage.getItem(KALIT);
-      if (matn) yozuvlar = JSON.parse(matn);
-    } catch (e) { yozuvlar = []; }
+}
+function saqlaTakror() {
+  try { localStorage.setItem("takrorlar_v5", JSON.stringify(takrorlar)); } catch (e) {}
+}
+
+/* ============================================================
+   ID
+   ============================================================ */
+function yangiId() {
+  let id = Date.now();
+  while (yozuvlar.some((y) => y.id === id) || takrorlar.some((r) => r.id === id)) id++;
+  return id;
+}
+
+/* ============================================================
+   TAKROR
+   ============================================================ */
+function takrorQoll() {
+  let soni = 0;
+  takrorlar.forEach((r) => {
+    for (let n = 0; n < 60; n++) {
+      const sana = r.keyingi + "-" + String(r.kun).padStart(2, "0");
+      if (sana > bugun()) break;
+      const mavjud = yozuvlar.some((y) =>
+        y.nom === r.nom && y.sana === sana && y.izoh === "🔁 Takrorlanuvchi"
+      );
+      if (mavjud) { r.keyingi = keyingiOy(r.keyingi); continue; }
+      yozuvlar.push({
+        id: yangiId(), tur: "expense",
+        nom: r.nom, kategoriya: r.kategoriya,
+        miqdor: 1, narx: r.narx, izoh: "🔁 Takrorlanuvchi", sana
+      });
+      r.keyingi = keyingiOy(r.keyingi);
+      soni++;
+    }
+  });
+  if (soni) { saqla(); saqlaTakror(); }
+  return soni;
+}
+
+/* ============================================================
+   HISOB
+   ============================================================ */
+function oyChiqim(oyK) {
+  return yozuvlar
+    .filter((y) => y.tur === "expense" && y.sana.slice(0, 7) === oyK)
+    .reduce((s, y) => s + summaOf(y), 0);
+}
+function oyKirim(oyK) {
+  return yozuvlar
+    .filter((y) => y.tur === "income" && y.sana.slice(0, 7) === oyK)
+    .reduce((s, y) => s + summaOf(y), 0);
+}
+function jamiBalans() {
+  let kirim = 0, chiqim = 0;
+  yozuvlar.forEach((y) => {
+    if (y.tur === "income") kirim += summaOf(y);
+    else chiqim += summaOf(y);
+  });
+  return { kirim, chiqim, balans: kirim - chiqim };
+}
+
+/* ============================================================
+   KATEGORIYA UI
+   ============================================================ */
+function kategoriyaToldir() {
+  const tur = tanlanganTur;
+  const royxat = tur === "income" ? KATEGORIYALAR_KIRIM : KATEGORIYALAR;
+  const tanlangan = $("kategoriya").value;
+
+  $("kategoriya").length = 0;
+  royxat.forEach((k) => $("kategoriya").add(new Option(k, k)));
+  if (tanlangan && royxat.indexOf(tanlangan) >= 0) $("kategoriya").value = tanlangan;
+
+  // Filtr — hammasi
+  const filtrTanlangan = $("filtrKat").value;
+  $("filtrKat").length = 1;
+  const hammasi = [...new Set([...KATEGORIYALAR, ...KATEGORIYALAR_KIRIM])];
+  hammasi.forEach((k) => $("filtrKat").add(new Option(k, k)));
+  if (filtrTanlangan && hammasi.indexOf(filtrTanlangan) >= 0) {
+    $("filtrKat").value = filtrTanlangan;
   }
 
-  // ===== 3. YORDAMCHI FUNKSIYALAR =====
-  function bugunSana() {
-    // "2026-10-03" ko'rinishidagi sana
-    return new Date().toLocaleDateString("sv-SE"); // mahalliy sana: 2026-10-03
-  }
-  function pul(son) {
-    return Math.round(son).toLocaleString("ru-RU") + " so'm";
-  }
+  // Takror select
+  $("takrorKat").length = 0;
+  KATEGORIYALAR.forEach((k) => $("takrorKat").add(new Option(k, k)));
 
-  // ===== 4. QO'SHISH =====
-  document.getElementById("forma").addEventListener("submit", function (e) {
-    e.preventDefault(); // sahifa yangilanib ketmasin
+  chiqimRoyxatChiz();
+  kirimRoyxatChiz();
+}
 
-    const yozuv = {
-      id: Date.now(),                                   // noyob raqam
-      sana: bugunSana(),
-      nom: document.getElementById("nom").value.trim(),
-      miqdor: Number(document.getElementById("miqdor").value),
-      narx: Number(document.getElementById("narx").value),
-      izoh: document.getElementById("izoh").value.trim()
+function chiqimRoyxatChiz() {
+  const joy = $("katRoyxat");
+  joy.innerHTML = "";
+  KATEGORIYALAR.forEach((k) => {
+    const q = el("div", "sat");
+    q.appendChild(el("span", "", k));
+    if (k !== BOSHQA) {
+      const t = el("button", "ikon", "✎");
+      t.type = "button"; t.onclick = () => kategoriyaNomi(k, "expense");
+      const o = el("button", "ikon", "✕");
+      o.type = "button"; o.onclick = () => kategoriyaOchir(k, "expense");
+      q.appendChild(t); q.appendChild(o);
+    }
+    joy.appendChild(q);
+  });
+}
+
+function kirimRoyxatChiz() {
+  const joy = $("katKirimRoyxat");
+  joy.innerHTML = "";
+  KATEGORIYALAR_KIRIM.forEach((k) => {
+    const q = el("div", "sat");
+    q.appendChild(el("span", "", k));
+    const t = el("button", "ikon", "✎");
+    t.type = "button"; t.onclick = () => kategoriyaNomi(k, "income");
+    const o = el("button", "ikon", "✕");
+    o.type = "button"; o.onclick = () => kategoriyaOchir(k, "income");
+    q.appendChild(t); q.appendChild(o);
+    joy.appendChild(q);
+  });
+}
+
+function kategoriyaNomiTozala(nom) {
+  nom = String(nom || "").trim().slice(0, 24);
+  return nom && /^[\p{L}\p{N}]/u.test(nom) ? "🏷️ " + nom : nom;
+}
+
+function kategoriyaNomi(eski, tur) {
+  const royxat = tur === "income" ? KATEGORIYALAR_KIRIM : KATEGORIYALAR;
+  const nom = kategoriyaNomiTozala(prompt("Yangi nom:", eski) || "");
+  if (!nom || nom === eski) return;
+  if (royxat.some((k) => k !== eski && k.toLowerCase() === nom.toLowerCase())) {
+    toastKorsat("⚠️ Bunday kategoriya mavjud", false); return;
+  }
+  royxat[royxat.indexOf(eski)] = nom;
+  yozuvlar.forEach((y) => {
+    if (y.kategoriya === eski && y.tur === tur) y.kategoriya = nom;
+  });
+  saqla(); kategoriyaToldir(); takrorRoyxatChiz(); chiz();
+}
+
+function kategoriyaOchir(nom, tur) {
+  const royxat = tur === "income" ? KATEGORIYALAR_KIRIM : KATEGORIYALAR;
+  const soni = yozuvlar.filter((y) => y.kategoriya === nom && y.tur === tur).length;
+  const yangi = tur === "income" ? KATEGORIYALAR_KIRIM[0] : BOSHQA;
+  const xabar = `"${nom}" o'chirilsinmi?` + (soni ? `\n${soni} ta yozuv "${yangi}" ga o'tadi.` : "");
+  if (!confirm(xabar)) return;
+  if (tur === "income") {
+    KATEGORIYALAR_KIRIM = KATEGORIYALAR_KIRIM.filter((k) => k !== nom);
+  } else {
+    KATEGORIYALAR = KATEGORIYALAR.filter((k) => k !== nom);
+  }
+  yozuvlar.forEach((y) => { if (y.kategoriya === nom && y.tur === tur) y.kategoriya = yangi; });
+  saqla(); kategoriyaToldir(); takrorRoyxatChiz(); chiz();
+}
+
+$("katQosh").onclick = () => {
+  const nom = kategoriyaNomiTozala($("katYangi").value);
+  if (!nom) { toastKorsat("⚠️ Nom kiriting", false); return; }
+  if (KATEGORIYALAR.some((k) => k.toLowerCase() === nom.toLowerCase())) {
+    toastKorsat("⚠️ Bunday kategoriya mavjud", false); return;
+  }
+  if (KATEGORIYALAR.length >= 20) { toastKorsat("⚠️ 20 tadan oshmasin", false); return; }
+  KATEGORIYALAR.push(nom);
+  $("katYangi").value = "";
+  saqla(); kategoriyaToldir(); chiz();
+  toastKorsat("✓ Qo'shildi", false);
+};
+
+$("katKirimQosh").onclick = () => {
+  const nom = kategoriyaNomiTozala($("katKirimYangi").value);
+  if (!nom) { toastKorsat("⚠️ Nom kiriting", false); return; }
+  if (KATEGORIYALAR_KIRIM.some((k) => k.toLowerCase() === nom.toLowerCase())) {
+    toastKorsat("⚠️ Bunday tur mavjud", false); return;
+  }
+  if (KATEGORIYALAR_KIRIM.length >= 20) { toastKorsat("⚠️ 20 tadan oshmasin", false); return; }
+  KATEGORIYALAR_KIRIM.push(nom);
+  $("katKirimYangi").value = "";
+  saqla(); kategoriyaToldir(); chiz();
+  toastKorsat("✓ Qo'shildi", false);
+};
+
+/* ============================================================
+   TAKROR UI
+   ============================================================ */
+function takrorRoyxatChiz() {
+  const joy = $("takrorRoyxat");
+  joy.innerHTML = "";
+  if (!takrorlar.length) {
+    joy.appendChild(el("div", "bosh-kichik", "Hali qo'shilmagan"));
+    return;
+  }
+  takrorlar.forEach((r) => {
+    const q = el("div", "sat");
+    q.appendChild(el("span", "", `🔁 ${r.nom} — ${pul(r.narx)}, har oyning ${r.kun}-kuni`));
+    const o = el("button", "ikon", "✕");
+    o.type = "button";
+    o.onclick = () => {
+      if (!confirm(`"${r.nom}" o'chirilsinmi?`)) return;
+      takrorlar = takrorlar.filter((x) => x.id !== r.id);
+      saqlaTakror(); takrorRoyxatChiz();
     };
+    q.appendChild(o);
+    joy.appendChild(q);
+  });
+}
 
-    yozuvlar.unshift(yozuv); // ro'yxat boshiga qo'shamiz
-    saqla();
-    chiz();
+$("takrorQosh").onclick = () => {
+  const nom = $("takrorNom").value.trim();
+  const narx = sonKirit($("takrorNarx").value);
+  const kk = Math.floor(Number($("takrorKun").value));
+  if (!nom || !(narx >= 0) || !(kk >= 1 && kk <= 28)) {
+    toastKorsat("⚠️ Nom, summa va kunni to'g'ri kiriting", false); return;
+  }
+  let oyK = bugun().slice(0, 7);
+  if (kk < new Date().getDate()) oyK = keyingiOy(oyK);
+  takrorlar.push({ id: Date.now(), nom, kategoriya: $("takrorKat").value, narx, kun: kk, keyingi: oyK });
+  saqlaTakror();
+  $("takrorNom").value = ""; $("takrorNarx").value = ""; $("takrorKun").value = "";
+  const q = takrorQoll();
+  takrorRoyxatChiz(); chiz();
+  toastKorsat(q ? `🔁 ${q} ta chiqim qo'shildi` : "✓ Saqlandi", false);
+};
 
-    this.reset();
-    document.getElementById("miqdor").value = 1;
-    document.getElementById("nom").focus();
+/* ============================================================
+   TUR TANLASH
+   ============================================================ */
+function turTanla(tur) {
+  tanlanganTur = tur;
+  $("turChiqim").classList.toggle("faol", tur === "expense");
+  $("turKirim").classList.toggle("faol", tur === "income");
+  $("turChiqim").classList.toggle("expense", tur === "expense");
+  $("turKirim").classList.toggle("income", tur === "income");
+  const tugma = $("tugma");
+  tugma.textContent = tur === "income" ? "↓ Kirim qo'shish" : "↑ Chiqim qo'shish";
+  tugma.className = "btn full " + (tur === "income" ? "income" : "expense");
+
+  const royxat = tur === "income" ? KATEGORIYALAR_KIRIM : KATEGORIYALAR;
+  $("kategoriya").length = 0;
+  royxat.forEach((k) => $("kategoriya").add(new Option(k, k)));
+}
+
+$("turChiqim").onclick = () => turTanla("expense");
+$("turKirim").onclick = () => turTanla("income");
+
+/* ============================================================
+   SANA TEZ
+   ============================================================ */
+function sanaTezYangila() {
+  const hozirgi = $("sana").value;
+  document.querySelectorAll("#sanaTez button").forEach((b) => {
+    const k = Number(b.dataset.kun);
+    b.classList.toggle("faol", hozirgi === sanaQoshish(bugun(), -k));
+  });
+}
+document.querySelectorAll("#sanaTez button").forEach((b) => {
+  b.onclick = () => {
+    $("sana").value = sanaQoshish(bugun(), -Number(b.dataset.kun));
+    sanaTezYangila();
+  };
+});
+$("sana").addEventListener("change", sanaTezYangila);
+
+/* ============================================================
+   FORMA
+   ============================================================ */
+function formaTozala() {
+  $("forma").reset();
+  tahrirId = null;
+  $("sana").value = tanlanganSana || bugun();
+  $("sana").max = bugun();
+  $("miqdor").value = 1;
+  $("varaqSarlavha").textContent = "Yangi yozuv";
+  turTanla(tanlanganTur);
+  setTimeout(sanaTezYangila, 0);
+}
+
+function varaqOch() {
+  $("varaq").hidden = false;
+  document.body.classList.add("lock");
+  setTimeout(() => { try { $("nom").focus(); } catch (e) {} }, 100);
+}
+function varaqYop() {
+  $("varaq").hidden = true;
+  document.body.classList.remove("lock");
+  formaTozala();
+}
+
+$("fab").onclick = () => { formaTozala(); varaqOch(); };
+$("yop").onclick = varaqYop;
+$("orqa").onclick = varaqYop;
+
+["miqdor", "narx", "limitKirish", "takrorNarx"].forEach((id) => {
+  const inp = $(id);
+  if (!inp) return;
+  inp.addEventListener("input", (e) => {
+    const start = e.target.selectionStart;
+    const old = e.target.value;
+    const yangi = old.replace(/,/g, ".");
+    if (old !== yangi) {
+      e.target.value = yangi;
+      try { e.target.setSelectionRange(start, start); } catch (err) {}
+    }
+  });
+});
+
+$("forma").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const nom = $("nom").value.trim();
+  const miqdor = sonKirit($("miqdor").value);
+  const narx = sonKirit($("narx").value);
+  const sana = $("sana").value || bugun();
+
+  if (!nom) { toastKorsat("⚠️ Nomini kiriting", false); $("nom").focus(); return; }
+  if (!(miqdor > 0)) { toastKorsat("⚠️ Miqdor 0 dan katta bo'lsin", false); $("miqdor").focus(); return; }
+  if (!(narx >= 0)) { toastKorsat("⚠️ Narx noto'g'ri", false); $("narx").focus(); return; }
+  if (sana > bugun()) { toastKorsat("⚠️ Kelajak sanasi mumkin emas", false); return; }
+
+  const malumot = {
+    tur: tanlanganTur,
+    nom: nom.slice(0, 100),
+    kategoriya: $("kategoriya").value,
+    miqdor, narx,
+    izoh: $("izoh").value.trim().slice(0, 200),
+    sana
+  };
+  const oyK = sana.slice(0, 7);
+  const oldin = oyChiqim(oyK);
+  let xabar = tanlanganTur === "income" ? "✓ Kirim qo'shildi" : "✓ Chiqim qo'shildi";
+
+  if (tahrirId) {
+    const eski = yozuvlar.find((y) => y.id === tahrirId);
+    if (eski) Object.assign(eski, malumot);
+    xabar = "✓ Saqlandi";
+  } else {
+    yozuvlar.push(Object.assign({ id: yangiId() }, malumot));
+    tanlanganSana = sana;
+  }
+
+  oy = oyK;
+  kun = sana;
+  korinish = "kun";
+  varaqYop();
+  saqla();
+  chiz();
+
+  if (tanlanganTur === "expense" && limit > 0) {
+    const keyin = oyChiqim(oyK);
+    if (keyin > limit && oldin <= limit) xabar = "⚠️ Oylik limitdan oshdingiz!";
+    else if (keyin >= limit * 0.8 && oldin < limit * 0.8 && keyin <= limit) xabar = "⚠️ Limitning 80% sarflandi";
+  }
+  toastKorsat(xabar, false);
+});
+
+function tahrirla(y) {
+  tahrirId = y.id;
+  tanlanganTur = y.tur;
+  turTanla(y.tur);
+  $("nom").value = y.nom;
+  $("kategoriya").value = y.kategoriya;
+  $("sana").value = y.sana;
+  $("miqdor").value = y.miqdor;
+  $("narx").value = y.narx;
+  $("izoh").value = y.izoh;
+  $("varaqSarlavha").textContent = "Tahrirlash";
+  varaqOch();
+  setTimeout(sanaTezYangila, 0);
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toastKorsat(matn, qaytarish) {
+  $("toastMatn").textContent = matn;
+  $("qaytar").hidden = !qaytarish;
+  $("toast").hidden = false;
+  if (!qaytarish) ochirilgan = null;
+  clearTimeout(toastVaqt);
+  toastVaqt = setTimeout(() => { $("toast").hidden = true; ochirilgan = null; }, qaytarish ? 6000 : 2400);
+}
+
+function ochir(y) {
+  const joyi = yozuvlar.findIndex((q) => q.id === y.id);
+  if (joyi < 0) return;
+  ochirilgan = { y, joyi };
+  yozuvlar.splice(joyi, 1);
+  if (tahrirId === y.id) varaqYop();
+  saqla(); chiz();
+  toastKorsat(`"${y.nom}" o'chirildi`, true);
+}
+
+$("qaytar").onclick = () => {
+  if (!ochirilgan) return;
+  yozuvlar.splice(ochirilgan.joyi, 0, ochirilgan.y);
+  ochirilgan = null;
+  $("toast").hidden = true;
+  saqla(); chiz();
+  toastKorsat("✓ Qaytarildi", false);
+};
+
+/* ============================================================
+   NAVIGATSIYA
+   ============================================================ */
+function surish(d) {
+  if (korinish === "kun") {
+    kun = sanaQoshish(kun, d);
+    oy = kun.slice(0, 7);
+  } else {
+    const [y, m] = oy.split("-").map(Number);
+    const sana = new Date(y, m - 1 + d, 1);
+    oy = sana.getFullYear() + "-" + String(sana.getMonth() + 1).padStart(2, "0");
+  }
+  chiz();
+}
+$("oldingi").onclick = () => surish(-1);
+$("keyingi").onclick = () => surish(1);
+
+function korinishTanla(k) {
+  korinish = k;
+  if (k === "kun" && kun.slice(0, 7) !== oy) {
+    kun = oy === bugun().slice(0, 7) ? bugun() : oy + "-01";
+  }
+  chiz();
+}
+$("rejimKun").onclick = () => korinishTanla("kun");
+$("rejimOy").onclick = () => korinishTanla("oy");
+
+/* ============================================================
+   CHIZISH
+   ============================================================ */
+function chiz() {
+  chizBalans();
+
+  const kunRejim = korinish === "kun";
+  let oraliq;
+
+  if (kunRejim) {
+    oraliq = yozuvlar.filter((y) => y.sana === kun);
+    $("oyNomi").textContent = kunNomi(kun);
+    $("keyingi").disabled = kun >= bugun();
+  } else {
+    const [y, m] = oy.split("-").map(Number);
+    oraliq = yozuvlar.filter((y) => y.sana.slice(0, 7) === oy);
+    $("oyNomi").textContent = OYLAR[m - 1] + " " + y;
+    $("keyingi").disabled = oy >= bugun().slice(0, 7);
+  }
+
+  $("rejimKun").classList.toggle("faol", kunRejim);
+  $("rejimOy").classList.toggle("faol", !kunRejim);
+  $("kunlarKarta").hidden = kunRejim || !oraliq.length;
+  if (!kunRejim) kunlarChiz(oraliq);
+  limitChiz(kunRejim ? kun.slice(0, 7) : oy);
+  $("grafikKarta").hidden = kunRejim;
+
+  hisobotChiz(oraliq, kunRejim);
+  grafikChiz(oraliq);
+  royxatChiz(oraliq);
+  zaxiraEslatma();
+}
+
+function chizBalans() {
+  const { kirim, chiqim, balans } = jamiBalans();
+  const bEl = $("balans");
+  bEl.textContent = pul(balans);
+  bEl.className = "balance-value " + (balans > 0 ? "positive" : balans < 0 ? "negative" : "neutral");
+  $("balansKirim").textContent = pul(kirim);
+  $("balansChiqim").textContent = pul(chiqim);
+  $("balansNote").textContent = balans >= 0
+    ? "Ijobiy balans · Yaxshi ketmoqda"
+    : "Salbiy balans · Chiqim ko'proq";
+}
+
+function hisobotChiz(oraliq, kunRejim) {
+  const chiqim = oraliq.filter((y) => y.tur === "expense").reduce((s, y) => s + summaOf(y), 0);
+  const kirim = oraliq.filter((y) => y.tur === "income").reduce((s, y) => s + summaOf(y), 0);
+
+  $("jami").textContent = pul(chiqim);
+
+  if (kunRejim) {
+    $("jamiNom").textContent = "Shu kunda chiqim";
+    $("ortachaNom").textContent = "Shu kunda kirim";
+    $("ortacha").textContent = pul(kirim);
+  } else {
+    const [y, m] = oy.split("-").map(Number);
+    const kunlar = new Date(y, m, 0).getDate();
+    $("jamiNom").textContent = "Shu oyda chiqim";
+    $("ortachaNom").textContent = "Kunlik o'rtacha chiqim";
+    $("ortacha").textContent = pul(chiqim / Math.max(kunlar, 1));
+  }
+
+  let eng = null;
+  oraliq.filter((y) => y.tur === "expense").forEach((y) => {
+    if (!eng || summaOf(y) > summaOf(eng)) eng = y;
+  });
+  $("eng").textContent = eng ? eng.nom + ": " + pul(summaOf(eng)) : "—";
+}
+
+function grafikChiz(oydagi) {
+  const joy = $("grafik");
+  joy.innerHTML = "";
+
+  const chiqimlar = oydagi.filter((y) => y.tur === "expense");
+  const kirimlar = oydagi.filter((y) => y.tur === "income");
+
+  const chiqimYig = {};
+  let chiqimJami = 0;
+  chiqimlar.forEach((y) => {
+    chiqimYig[y.kategoriya] = (chiqimYig[y.kategoriya] || 0) + summaOf(y);
+    chiqimJami += summaOf(y);
   });
 
-  // ===== 5. O'CHIRISH =====
-  function ochir(id) {
-    yozuvlar = yozuvlar.filter(function (y) { return y.id !== id; });
-    saqla();
-    chiz();
+  const kirimYig = {};
+  let kirimJami = 0;
+  kirimlar.forEach((y) => {
+    kirimYig[y.kategoriya] = (kirimYig[y.kategoriya] || 0) + summaOf(y);
+    kirimJami += summaOf(y);
+  });
+
+  if (chiqimJami === 0 && kirimJami === 0) {
+    joy.appendChild(el("div", "bosh", "Bu davrda yozuv yo'q"));
+    return;
   }
 
-  // ===== 6. EKRANGA CHIZISH =====
-  function chiz() {
-    const joy = document.getElementById("royxat");
-    joy.innerHTML = "";
-
-    // Jami hisoblar
-    let hammasi = 0, bugun = 0;
-    yozuvlar.forEach(function (y) {
-      const summa = y.miqdor * y.narx;
-      hammasi += summa;
-      if (y.sana === bugunSana()) bugun += summa;
+  if (chiqimJami > 0) {
+    const sarlavha = el("div", "soz-bolim");
+    sarlavha.textContent = "↑ Chiqimlar";
+    joy.appendChild(sarlavha);
+    Object.keys(chiqimYig).sort((a, b) => chiqimYig[b] - chiqimYig[a]).forEach((k) => {
+      const foiz = Math.round((chiqimYig[k] / chiqimJami) * 100);
+      joy.appendChild(buildBar(k, chiqimYig[k], foiz, "expense"));
     });
-    document.getElementById("bugunJami").textContent = pul(bugun);
-    document.getElementById("hammaJami").textContent = pul(hammasi);
+  }
 
-    if (yozuvlar.length === 0) {
-      joy.innerHTML = '<div class="card empty">Hali yozuv yo\'q. Birinchisini qo\'shing 👆</div>';
-      return;
+  if (kirimJami > 0) {
+    const sarlavha = el("div", "soz-bolim");
+    sarlavha.textContent = "↓ Kirimlar";
+    sarlavha.style.marginTop = chiqimJami > 0 ? "20px" : "0";
+    joy.appendChild(sarlavha);
+    Object.keys(kirimYig).sort((a, b) => kirimYig[b] - kirimYig[a]).forEach((k) => {
+      const foiz = Math.round((kirimYig[k] / kirimJami) * 100);
+      joy.appendChild(buildBar(k, kirimYig[k], foiz, "income"));
+    });
+  }
+}
+
+function buildBar(nom, summa, foiz, tur) {
+  const qator = el("div", "qator");
+  const ustki = el("div", "ustki");
+  ustki.appendChild(el("span", "", nom));
+  ustki.appendChild(el("span", "", pul(summa) + " · " + foiz + "%"));
+  const yol = el("div", "yol");
+  const chiziq = el("i", tur);
+  chiziq.style.width = foiz + "%";
+  yol.appendChild(chiziq);
+  qator.appendChild(ustki);
+  qator.appendChild(yol);
+  return qator;
+}
+
+function limitChiz(oyK) {
+  $("limitKarta").hidden = !(limit > 0);
+  if (!(limit > 0)) return;
+  const sarf = oyChiqim(oyK);
+  const foiz = Math.round((sarf / limit) * 100);
+  $("limitNom").textContent = `Limit: ${pul(sarf)} / ${pul(limit)}`;
+  const foizEl = $("limitFoiz");
+  foizEl.textContent = foiz + "%";
+  foizEl.style.color = foiz > 100 ? "var(--expense)" : foiz >= 80 ? "var(--warn)" : "var(--accent)";
+
+  const c = $("limitChiziq");
+  c.style.width = Math.min(foiz, 100) + "%";
+  c.className = "expense";
+
+  let matn;
+  if (sarf > limit) {
+    matn = `Limitdan ${pul(sarf - limit)} oshdi`;
+  } else {
+    matn = `Qoldi: ${pul(limit - sarf)}`;
+    if (oyK === bugun().slice(0, 7)) {
+      const d = new Date();
+      const qolgan = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() - d.getDate() + 1;
+      matn += ` · kuniga ≈ ${pul((limit - sarf) / Math.max(qolgan, 1))}`;
     }
-
-    // Kunlar bo'yicha guruhlash
-    const kunlar = {};
-    yozuvlar.forEach(function (y) {
-      if (!kunlar[y.sana]) kunlar[y.sana] = [];
-      kunlar[y.sana].push(y);
-    });
-
-    Object.keys(kunlar).sort().reverse().forEach(function (sana) {
-      const guruh = kunlar[sana];
-      const kunJami = guruh.reduce(function (s, y) { return s + y.miqdor * y.narx; }, 0);
-
-      const karta = document.createElement("div");
-      karta.className = "card";
-      karta.innerHTML =
-        '<div class="day-title"><span>' + sana + '</span><span>' + pul(kunJami) + '</span></div>';
-
-      guruh.forEach(function (y) {
-        const qator = document.createElement("div");
-        qator.className = "item";
-
-        const chap = document.createElement("div");
-        const nom = document.createElement("div");
-        nom.className = "name";
-        nom.textContent = y.nom;
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        meta.textContent = y.miqdor + " × " + pul(y.narx) + (y.izoh ? " · " + y.izoh : "");
-        chap.appendChild(nom);
-        chap.appendChild(meta);
-
-        const summa = document.createElement("div");
-        summa.className = "sum";
-        summa.textContent = pul(y.miqdor * y.narx);
-
-        const tugma = document.createElement("button");
-        tugma.className = "del";
-        tugma.textContent = "✕";
-        tugma.title = "O'chirish";
-        tugma.onclick = function () {
-          if (confirm("\"" + y.nom + "\" o'chirilsinmi?")) ochir(y.id);
-        };
-
-        qator.appendChild(chap);
-        qator.appendChild(summa);
-        qator.appendChild(tugma);
-        karta.appendChild(qator);
-      });
-
-      joy.appendChild(karta);
-    });
   }
+  $("limitQoldi").textContent = matn;
+}
 
-  // ===== 7. ZAXIRA NUSXA =====
-  document.getElementById("eksportTugma").onclick = function () {
-    const blob = new Blob([JSON.stringify(yozuvlar, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "xarajatlar-zaxira-" + bugunSana() + ".json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
-  document.getElementById("importTugma").onclick = function () {
-    document.getElementById("fayl").click();
-  };
-  document.getElementById("fayl").onchange = function () {
-    const fayl = this.files[0];
-    if (!fayl) return;
-    const o = new FileReader();
-    o.onload = function () {
-      try {
-        const yangi = JSON.parse(o.result);
-        if (!Array.isArray(yangi)) throw new Error("noto'g'ri fayl");
-        if (confirm(yangi.length + " ta yozuv tiklansinmi? Hozirgilari almashtiriladi.")) {
-          yozuvlar = yangi;
-          saqla();
-          chiz();
-        }
-      } catch (e) { alert("Fayl o'qilmadi. To'g'ri zaxira faylini tanlang."); }
+/* ============================================================
+   KUNLAR GRAFIGI — TUZATILGAN
+   ============================================================ */
+function kunlarChiz(oraliq) {
+  const joy = $("kunlar");
+  joy.innerHTML = "";
+  const [y, m] = oy.split("-").map(Number);
+  const soni = new Date(y, m, 0).getDate();
+
+  const yigindi = {};
+  let eng = 0;
+  oraliq.forEach((z) => {
+    if (z.tur !== "expense") return;
+    const s = summaOf(z);
+    yigindi[z.sana] = (yigindi[z.sana] || 0) + s;
+    if (yigindi[z.sana] > eng) eng = yigindi[z.sana];
+  });
+
+  $("kunOxiri").textContent = soni + "-kun";
+
+  for (let d = 1; d <= soni; d++) {
+    const sana = oy + "-" + String(d).padStart(2, "0");
+    const q = yigindi[sana] || 0;
+    const b = el("button", "ustun" + (sana === bugun() ? " bugun" : "") + (q ? "" : " bosh"));
+    b.type = "button";
+    b.disabled = sana > bugun();
+    b.title = `${d}-${OYLAR[m - 1].toLowerCase()}: ${pul(q)}`;
+    b.setAttribute("aria-label", b.title);
+
+    const bar = el("span", "ustun-bar");
+    const foiz = q === 0 ? 3 : Math.max((q / eng) * 100, 6);
+    bar.style.height = foiz + "%";
+    b.appendChild(bar);
+
+    b.onclick = () => {
+      korinish = "kun";
+      kun = sana;
+      oy = sana.slice(0, 7);
+      chiz();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     };
-    o.readAsText(fayl);
-    this.value = "";
-  };
+    joy.appendChild(b);
+  }
+}
 
-  // ===== 8. INTERNETSIZ ISHLASH (service worker) =====
-  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
-    navigator.serviceWorker.register("./sw.js").catch(function () {});
+/* ============================================================
+   RO'YXAT
+   ============================================================ */
+function qatorChiz(y) {
+  const qator = el("div", "yozuv " + y.tur);
+  qator.appendChild(el("span", "em", y.kategoriya.split(" ")[0]));
+
+  const matn = el("div", "matn");
+  matn.appendChild(el("div", "nom", y.nom));
+  matn.appendChild(el("div", "tafsilot",
+    `${y.miqdor} × ${pul(y.narx)}` + (y.izoh ? " · " + y.izoh : "")));
+  qator.appendChild(matn);
+
+  const summa = y.tur === "income" ? "+" + pul(summaOf(y)) : "−" + pul(summaOf(y));
+  qator.appendChild(el("span", "summa", summa));
+
+  const t = el("button", "ikon", "✎");
+  t.setAttribute("aria-label", "Tahrirlash");
+  t.onclick = () => tahrirla(y);
+  const o = el("button", "ikon ochir", "✕");
+  o.setAttribute("aria-label", "O'chirish");
+  o.onclick = () => ochir(y);
+  qator.appendChild(t);
+  qator.appendChild(o);
+  return qator;
+}
+
+function royxatChiz(oraliq) {
+  const joy = $("royxat");
+  joy.innerHTML = "";
+  const soz = $("qidir").value.trim().toLowerCase();
+  const kat = $("filtrKat").value;
+  $("filtrKarta").hidden = !(oraliq.length >= 6 || soz || kat);
+
+  const korinadigan = oraliq.filter((y) => {
+    const matn = (y.nom + " " + y.izoh).toLowerCase();
+    return (!soz || matn.indexOf(soz) >= 0) && (!kat || y.kategoriya === kat);
+  });
+
+  if (!korinadigan.length) {
+    const xabar = oraliq.length ? "Hech narsa topilmadi"
+      : korinish === "kun" ? "Bu kunda yozuv yo'q"
+      : "Bu oyda yozuv yo'q";
+    joy.appendChild(el("div", "bosh", xabar));
+    return;
   }
 
-  // ===== 9. BOSHLASH =====
-  yukla();
+  if (korinish === "kun") {
+    korinadigan.sort((a, b) => b.id - a.id).forEach((y) => joy.appendChild(qatorChiz(y)));
+    return;
+  }
+
+  const kunlar = {};
+  korinadigan.forEach((y) => {
+    if (!kunlar[y.sana]) kunlar[y.sana] = [];
+    kunlar[y.sana].push(y);
+  });
+  Object.keys(kunlar).sort().reverse().forEach((sana) => {
+    const guruh = kunlar[sana].sort((a, b) => b.id - a.id);
+    const kunChiqim = guruh.filter((z) => z.tur === "expense").reduce((s, z) => s + summaOf(z), 0);
+    const kunKirim = guruh.filter((z) => z.tur === "income").reduce((s, z) => s + summaOf(z), 0);
+    const [y, m, d] = sana.split("-").map(Number);
+    const nomi = d + "-" + OYLAR[m - 1].toLowerCase() + (sana === bugun() ? " · bugun" : "");
+
+    const sarlavha = el("div", "kun-guruh");
+    const s1 = el("div", "kun-nom");
+    s1.textContent = nomi;
+    const s2 = el("div", "kun-jami");
+    const qismlar = [];
+    if (kunKirim > 0) qismlar.push("+" + pul(kunKirim));
+    if (kunChiqim > 0) qismlar.push("−" + pul(kunChiqim));
+    s2.textContent = qismlar.join(" · ") || "—";
+    sarlavha.appendChild(s1);
+    sarlavha.appendChild(s2);
+    sarlavha.onclick = () => {
+      korinish = "kun";
+      kun = sana;
+      oy = sana.slice(0, 7);
+      chiz();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    joy.appendChild(sarlavha);
+    guruh.forEach((z) => joy.appendChild(qatorChiz(z)));
+  });
+}
+
+$("qidir").addEventListener("input", chiz);
+$("filtrKat").addEventListener("change", chiz);
+
+/* ============================================================
+   ZAXIRA
+   ============================================================ */
+function zaxiraEslatma() {
+  let sana = null;
+  let olingan = false;
+  try {
+    sana = localStorage.getItem("oxirgiZaxira");
+    olingan = !!sana;
+    if (!sana && yozuvlar.length > 0) {
+      const eng = yozuvlar.reduce((min, y) => y.sana < min ? y.sana : min, bugun());
+      sana = localStorage.getItem("zaxiraBoshi") || eng;
+      if (!localStorage.getItem("zaxiraBoshi")) localStorage.setItem("zaxiraBoshi", sana);
+    }
+  } catch (e) {}
+  const otgan = sana ? kunFarqi(sana, bugun()) : 0;
+  $("eslatma").hidden = !(yozuvlar.length > 0 && otgan >= 7);
+  $("eslatmaMatn").textContent = olingan
+    ? `Oxirgi zaxiradan ${otgan} kun o'tdi`
+    : `Zaxira olmaganingizga ${otgan} kun bo'ldi`;
+}
+$("eslatmaTugma").onclick = () => $("eksportTugma").click();
+
+/* ============================================================
+   EKSPORT / IMPORT
+   ============================================================ */
+$("eksportTugma").onclick = () => {
+  const paket = {
+    versiya: 5, sana: bugun(),
+    yozuvlar,
+    kategoriyalar: KATEGORIYALAR,
+    kategoriyalarKirim: KATEGORIYALAR_KIRIM,
+    takrorlar, limit
+  };
+  const blob = new Blob([JSON.stringify(paket, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "xarajatlar-zaxira-" + bugun() + ".json";
+  a.click();
+  try { localStorage.setItem("oxirgiZaxira", bugun()); } catch (e) {}
+  zaxiraEslatma();
+  toastKorsat("✓ Zaxira yuklandi", false);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+
+$("importTugma").onclick = () => $("fayl").click();
+
+$("fayl").onchange = function () {
+  const fayl = this.files[0];
+  if (!fayl) return;
+  const oqigich = new FileReader();
+  oqigich.onload = () => {
+    const eskiChiqim = KATEGORIYALAR.slice();
+    const eskiKirim = KATEGORIYALAR_KIRIM.slice();
+    try {
+      const xom = JSON.parse(oqigich.result);
+      const paket = Array.isArray(xom) ? { yozuvlar: xom } : xom;
+      if (!paket || !Array.isArray(paket.yozuvlar)) throw new Error("noto'g'ri");
+      if (Array.isArray(paket.kategoriyalar)) KATEGORIYALAR = kategoriyaTozala(paket.kategoriyalar, STANDART_CHIQIM);
+      if (Array.isArray(paket.kategoriyalarKirim)) KATEGORIYALAR_KIRIM = kategoriyaTozala(paket.kategoriyalarKirim, STANDART_KIRIM);
+      const yangi = yozuvTozala(paket.yozuvlar);
+      if (!yangi.length && paket.yozuvlar.length) throw new Error("o'qilmadi");
+      if (!confirm(`${yangi.length} ta yozuv tiklansinmi? Hozirgilari almashtiriladi.`)) {
+        KATEGORIYALAR = eskiChiqim;
+        KATEGORIYALAR_KIRIM = eskiKirim;
+        return;
+      }
+      yozuvlar = yangi;
+      if (Array.isArray(paket.takrorlar)) takrorlar = takrorTozala(paket.takrorlar);
+      if (paket.limit !== undefined) {
+        limit = Number(paket.limit) > 0 ? Number(paket.limit) : 0;
+        try { localStorage.setItem("limit_v5", String(limit)); } catch (e) {}
+      }
+      saqla(); saqlaTakror();
+      kategoriyaToldir(); takrorRoyxatChiz(); chiz();
+      toastKorsat(`✓ ${yangi.length} ta yozuv tiklandi`, false);
+    } catch (xato) {
+      KATEGORIYALAR = eskiChiqim;
+      KATEGORIYALAR_KIRIM = eskiKirim;
+      console.error(xato);
+      toastKorsat("⚠️ Fayl o'qilmadi", false);
+    }
+  };
+  oqigich.readAsText(fayl);
+  this.value = "";
+};
+
+/* ============================================================
+   CSV
+   ============================================================ */
+$("csvTugma").onclick = () => {
+  const xavfsiz = (v) => {
+    let t = String(v);
+    if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
+    return '"' + t.replace(/"/g, '""') + '"';
+  };
+  const son = (n) => String(Math.round(n * 100) / 100).replace(".", ",");
+  const qatorlar = [
+    ["Sana", "Tur", "Nomi", "Kategoriya", "Miqdori", "Narxi", "Summa", "Izoh"].map(xavfsiz).join(";")
+  ];
+  yozuvlar
+    .slice()
+    .sort((a, b) => a.sana < b.sana ? 1 : a.sana > b.sana ? -1 : b.id - a.id)
+    .forEach((y) => {
+      qatorlar.push([
+        y.sana,
+        y.tur === "income" ? "Kirim" : "Chiqim",
+        y.nom, y.kategoriya,
+        son(y.miqdor), son(y.narx), son(summaOf(y)),
+        y.izoh
+      ].map(xavfsiz).join(";"));
+    });
+  const blob = new Blob(["\uFEFF" + qatorlar.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "xarajatlar-" + bugun() + ".csv";
+  a.click();
+  toastKorsat("✓ CSV yuklandi", false);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+
+/* ============================================================
+   SOZLAMALAR
+   ============================================================ */
+function sozOch() {
+  $("limitKirish").value = limit || "";
+  $("sozlama").hidden = false;
+  document.body.classList.add("lock");
+}
+function sozYop() {
+  const v = sonKirit($("limitKirish").value);
+  limit = v > 0 ? v : 0;
+  try { localStorage.setItem("limit_v5", String(limit)); } catch (e) {}
+  $("sozlama").hidden = true;
+  document.body.classList.remove("lock");
   chiz();
+}
+$("sozTugma").onclick = sozOch;
+$("sozYop").onclick = sozYop;
+$("sozOrqa").onclick = sozYop;
+
+/* ============================================================
+   TEMA
+   ============================================================ */
+function temaBelgisi() {
+  $("tema").textContent = document.documentElement.dataset.theme === "dark" ? "☀️" : "🌙";
+}
+$("tema").onclick = () => {
+  const yangi = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = yangi;
+  try { localStorage.setItem("tema", yangi); } catch (e) {}
+  temaBelgisi();
+};
+
+/* ============================================================
+   ESC
+   ============================================================ */
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (!$("varaq").hidden) { varaqYop(); e.stopPropagation(); return; }
+  if (!$("sozlama").hidden) { sozYop(); e.stopPropagation(); }
+});
+
+/* ============================================================
+   VERSIYA TEKSHIRISH
+   ============================================================ */
+function yangilanishTekshir() {
+  if (typeof fetch !== "function") return;
+  if (!location.protocol.startsWith("http")) return;
+  if (location.hostname === "127.0.0.1" || location.hostname === "localhost") return;
+  fetch("./index.html", { cache: "no-store" })
+    .then((r) => r.ok ? r.text() : "")
+    .then((matn) => {
+      const m = /const\s+VERSIYA\s*=\s*["']([^"']+)["']/.exec(matn);
+      if (m && m[1] !== VERSIYA) $("yangilanish").hidden = false;
+    })
+    .catch(() => {});
+}
+$("yangilashTugma").onclick = () => location.reload();
+
+/* ============================================================
+   INIT
+   ============================================================ */
+$("versiya").textContent = "Xarajatlarim · v" + VERSIYA;
+const boshlandi = takrorQoll();
+kategoriyaToldir();
+takrorRoyxatChiz();
+formaTozala();
+temaBelgisi();
+chiz();
+if (boshlandi) toastKorsat(`🔁 ${boshlandi} ta chiqim qo'shildi`, false);
+setTimeout(yangilanishTekshir, 3000);
+
+/* ============================================================
+   VISIBILITY
+   ============================================================ */
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+  yangilanishTekshir();
+  if (bugun() === korilganKun) return;
+  if (kun === korilganKun) kun = bugun();
+  if (oy === korilganKun.slice(0, 7)) oy = bugun().slice(0, 7);
+  korilganKun = bugun();
+  tanlanganSana = null;
+  $("sana").max = bugun();
+  if (!tahrirId) $("sana").value = bugun();
+  const q = takrorQoll();
+  chiz();
+  if (q) toastKorsat(`🔁 ${q} ta chiqim qo'shildi`, false);
+});
+
+/* ============================================================
+   SERVICE WORKER
+   ============================================================ */
+if ("serviceWorker" in navigator &&
+    location.hostname !== "127.0.0.1" &&
+    location.hostname !== "localhost" &&
+    location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
