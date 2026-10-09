@@ -1,45 +1,80 @@
-const CACHE = "xarajatlarim-v4.0.0";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
-];
+/* ============================================================
+   SERVICE WORKER — Xarajatlarim v6.0.0
+   ============================================================ */
 
-self.addEventListener("install", (e) => {
-  e.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).catch(() => {})
-  );
-  self.skipWaiting();
-});
-
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
-  const url = new URL(e.request.url);
-  if (url.origin !== location.origin) return;
-
-  e.respondWith(
-    caches.match(e.request).then((cached) => {
-      const network = fetch(e.request)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(e.request, copy));
-          }
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
-  );
-});
+   var CACHE = "xarajatlarim-v6.0.0";
+   var ASSETS = [
+     "./",
+     "./index.html",
+     "./manifest.json"
+   ];
+   
+   /* ============================================================
+      INSTALL
+      ============================================================ */
+   self.addEventListener("install", function (e) {
+     e.waitUntil(
+       caches.open(CACHE).then(function (cache) {
+         // Har bir assetni alohida qo'shish (biri topilmasa, qolganlari qo'shiladi)
+         return Promise.all(
+           ASSETS.map(function (url) {
+             return cache.add(url).catch(function () {});
+           })
+         );
+       }).catch(function () {})
+     );
+     self.skipWaiting();
+   });
+   
+   /* ============================================================
+      ACTIVATE — eski keshlarni o'chirish
+      ============================================================ */
+   self.addEventListener("activate", function (e) {
+     e.waitUntil(
+       caches.keys().then(function (keys) {
+         return Promise.all(
+           keys.filter(function (k) { return k !== CACHE; })
+               .map(function (k) { return caches.delete(k); })
+         );
+       }).catch(function () {})
+     );
+     self.clients.claim();
+   });
+   
+   /* ============================================================
+      FETCH — cache first, network fallback
+      ============================================================ */
+   self.addEventListener("fetch", function (e) {
+     // Faqat GET so'rovlar
+     if (e.request.method !== "GET") return;
+   
+     // Faqat o'z domenimiz
+     var url;
+     try {
+       url = new URL(e.request.url);
+     } catch (err) {
+       return;
+     }
+     if (url.origin !== self.location.origin) return;
+   
+     e.respondWith(
+       caches.match(e.request).then(function (cached) {
+         // 1. Cache'da bo'lsa — qaytarish
+         if (cached) return cached;
+   
+         // 2. Cache'da yo'q — network'dan olish
+         return fetch(e.request).then(function (res) {
+           if (res && res.ok) {
+             var copy = res.clone();
+             caches.open(CACHE).then(function (c) {
+               c.put(e.request, copy).catch(function () {});
+             }).catch(function () {});
+           }
+           return res;
+         }).catch(function () {
+           // 3. Offline — index.html qaytarish
+           return caches.match("./index.html");
+         });
+       })
+     );
+   });
